@@ -585,6 +585,72 @@
             font-size: 0.78rem;
             line-height: 1.6;
         }
+
+        /* ══════════════════════════════════════
+           BOTTOM NAV (tablet & mobile only)
+        ══════════════════════════════════════ */
+        .bottom-nav {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 56px;
+                padding-bottom: env(safe-area-inset-bottom, 0);
+                background: var(--surface);
+                border-top: 1px solid var(--border);
+                z-index: 100;
+                align-items: center;
+                justify-content: space-around;
+            }
+            .bottom-nav-btn {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                padding: 8px 4px;
+                background: none;
+                border: none;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: var(--muted);
+                cursor: pointer;
+                transition: color 0.2s;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .bottom-nav-btn .bn-icon { font-size: 1.25rem; line-height: 1; }
+            .bottom-nav-btn.active { color: var(--accent); }
+            .bottom-nav-btn:hover:not(.active) { color: var(--text); }
+
+            .workspace {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: calc(100vh - 58px - 56px - env(safe-area-inset-bottom, 0));
+                padding-bottom: calc(56px + env(safe-area-inset-bottom, 0));
+            }
+            .col-left, .col-center, .col-right {
+                display: none !important;
+            }
+            .workspace[data-mobile-view="stats"] .col-left,
+            .workspace[data-mobile-view="add"] .col-center,
+            .workspace[data-mobile-view="tasks"] .col-right {
+                display: flex !important;
+            }
+            .workspace[data-mobile-view="add"] .col-center {
+                display: block !important;
+            }
+            .workspace[data-mobile-view="tasks"] .col-right {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -719,6 +785,21 @@
     </aside>
 </div>
 
+<nav class="bottom-nav" id="bottomNav" aria-label="Main">
+    <button type="button" class="bottom-nav-btn" data-mobile-tab="stats" aria-label="Stats">
+        <span class="bn-icon">📊</span>
+        <span>Stats</span>
+    </button>
+    <button type="button" class="bottom-nav-btn active" data-mobile-tab="add" aria-label="Add Tasks">
+        <span class="bn-icon">✍️</span>
+        <span>Add Tasks</span>
+    </button>
+    <button type="button" class="bottom-nav-btn" data-mobile-tab="tasks" aria-label="Tasks">
+        <span class="bn-icon">📋</span>
+        <span>Tasks</span>
+    </button>
+</nav>
+
 <script>
     // ── STATE ──────────────────────────────
     let tasks = [], nextId = 1, currentFilter = 'all';
@@ -727,6 +808,22 @@
     document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US',{
         weekday:'long', month:'short', day:'numeric', year:'numeric'
     });
+
+    // ── BOTTOM NAV (tablet & mobile) ───────
+    (function() {
+        var ws = document.querySelector('.workspace');
+        var nav = document.getElementById('bottomNav');
+        if (!ws || !nav) return;
+        ws.setAttribute('data-mobile-view', 'add');
+        nav.querySelectorAll('.bottom-nav-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tab = this.getAttribute('data-mobile-tab');
+                ws.setAttribute('data-mobile-view', tab);
+                nav.querySelectorAll('.bottom-nav-btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+            });
+        });
+    })();
 
     // ── TEXTAREA COUNTERS ──────────────────
     const bulkEl = document.getElementById('bulkInput');
