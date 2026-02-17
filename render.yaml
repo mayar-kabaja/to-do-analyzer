@@ -1,0 +1,10 @@
+# Deploy to-do-analyzer on Render (Web Service)
+# Connect this repo in Render Dashboard → New → Web Service, or use Blueprint.
+services:
+  - type: web
+    name: to-do-analyzer
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT app:app
+    plan: free
