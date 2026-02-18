@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart To-Do Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -632,9 +632,8 @@
 
             .workspace {
                 grid-template-columns: 1fr;
-                /* 100dvh = visible height on iOS Safari (avoids buttons hidden under URL bar) */
-                height: calc(100dvh - 50px - 50px - env(safe-area-inset-bottom, 0));
-                min-height: calc(100vh - 50px - 50px - env(safe-area-inset-bottom, 0));
+                height: calc(100vh - 50px - 50px - env(safe-area-inset-bottom, 0));
+                min-height: 0;
                 padding-bottom: 0;
                 overflow: hidden;
             }
@@ -674,38 +673,19 @@
             .workspace[data-mobile-view="add"] .col-center .center-panel {
                 flex: 1;
                 min-height: 0;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
+                overflow-y: auto;
+                overflow-x: hidden;
                 padding-left: 16px;
                 padding-right: 16px;
-                /* Extra bottom space so Clear/Analyze stay visible above nav & safe area on iPhone */
-                padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+                padding-bottom: 24px;
             }
             .workspace[data-mobile-view="add"] .col-center .center-header {
                 padding-left: 16px;
                 padding-right: 16px;
                 flex-shrink: 0;
             }
-            /* Textarea card fills most of the height on mobile */
-            .workspace[data-mobile-view="add"] .col-center .textarea-card {
-                flex: 1;
-                min-height: 0;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-            .workspace[data-mobile-view="add"] .col-center .textarea-card .tc-topbar,
-            .workspace[data-mobile-view="add"] .col-center .textarea-card .tc-footer {
-                flex-shrink: 0;
-            }
             .workspace[data-mobile-view="add"] .col-center .main-textarea {
-                flex: 1;
-                min-height: 0;
-                resize: none;
-            }
-            .workspace[data-mobile-view="add"] .col-center .action-row {
-                flex-shrink: 0;
+                min-height: 180px;
             }
 
             /* ── Mobile: smaller fonts & buttons ── */
