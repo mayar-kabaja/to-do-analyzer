@@ -10,5 +10,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health")
+def health():
+    return "", 200
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=7001)
+    # Bind to 0.0.0.0 so the server is reachable on all interfaces (e.g. Render, mobile on same network)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 7001)))
