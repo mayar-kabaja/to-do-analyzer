@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Smart To-Do Analyzer</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -632,8 +632,9 @@
 
             .workspace {
                 grid-template-columns: 1fr;
-                height: calc(100vh - 50px - 50px - env(safe-area-inset-bottom, 0));
-                min-height: 0;
+                /* 100dvh = visible height on iOS Safari (avoids buttons hidden under URL bar) */
+                height: calc(100dvh - 50px - 50px - env(safe-area-inset-bottom, 0));
+                min-height: calc(100vh - 50px - 50px - env(safe-area-inset-bottom, 0));
                 padding-bottom: 0;
                 overflow: hidden;
             }
@@ -678,7 +679,8 @@
                 flex-direction: column;
                 padding-left: 16px;
                 padding-right: 16px;
-                padding-bottom: 24px;
+                /* Extra bottom space so Clear/Analyze stay visible above nav & safe area on iPhone */
+                padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
             }
             .workspace[data-mobile-view="add"] .col-center .center-header {
                 padding-left: 16px;
