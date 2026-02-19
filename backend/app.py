@@ -26,8 +26,14 @@ if USE_INPROCESS_ML:
     except Exception:
         _vectorizer = _priority_model = _category_model = None
 
-frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+# Resolve frontend path relative to this file so it works from any CWD (e.g. Render: start from repo root)
+_backend_dir = os.path.dirname(os.path.abspath(__file__))
+_repo_root = os.path.abspath(os.path.join(_backend_dir, ".."))
+frontend_dir = os.path.join(_repo_root, "frontend")
 frontend_static_dir = os.path.join(frontend_dir, "static")
+if not os.path.isdir(frontend_dir):
+    import sys
+    print(f"[WARN] frontend_dir not found: {frontend_dir} (backend_dir={_backend_dir})", file=sys.stderr)
 app = Flask(
     __name__,
     template_folder=frontend_dir,

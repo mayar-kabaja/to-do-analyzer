@@ -1,11 +1,13 @@
 # Deploy to-do-analyzer on Render (Web Service)
 # Connect this repo in Render Dashboard → New → Web Service, or use Blueprint.
+# IMPORTANT: Leave "Root Directory" blank so the full repo (backend + frontend) is deployed.
 services:
   - type: web
     name: to-do-analyzer
     runtime: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && gunicorn -b 0.0.0.0:$PORT app:app
+    # Run from repo root so backend/ and frontend/ both exist; --chdir makes gunicorn load app from backend
+    startCommand: gunicorn -b 0.0.0.0:$PORT -w 1 --chdir backend app:app
     plan: free
     envVars:
       - key: USE_INPROCESS_ML

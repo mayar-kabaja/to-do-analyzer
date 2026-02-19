@@ -8,7 +8,6 @@ X = df["text"]
 y_priority = df["priority"]
 y_category = df["category"]
 
-# Split BEFORE evaluating — 80% train, 20% test
 X_train, X_test, yp_train, yp_test, yc_train, yc_test = train_test_split(
     X, y_priority, y_category, test_size=0.2, random_state=42
 )

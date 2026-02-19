@@ -8,7 +8,6 @@ import pickle
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Load models
 with open(os.path.join(_script_dir, "models", "vectorizer.pkl"), "rb") as f:
     vectorizer = pickle.load(f)
 with open(os.path.join(_script_dir, "models", "priority_model.pkl"), "rb") as f:
@@ -16,7 +15,6 @@ with open(os.path.join(_script_dir, "models", "priority_model.pkl"), "rb") as f:
 with open(os.path.join(_script_dir, "models", "category_model.pkl"), "rb") as f:
     category_model = pickle.load(f)
 
-# 5 example tasks to test
 examples = [
     "Buy groceries",
     "Submit tax return by Friday",

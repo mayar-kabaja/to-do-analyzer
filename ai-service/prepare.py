@@ -1,7 +1,6 @@
 import pandas as pd
 from pathlib import Path
 
-# Paths relative to this script so it works from any working directory
 DATA_DIR = Path(__file__).parent / "data"
 df = pd.read_csv(DATA_DIR / "raw_tasks.csv")
 
