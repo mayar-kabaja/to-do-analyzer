@@ -1,5 +1,12 @@
+import json
 import os
-from flask import Flask, render_template, send_from_directory, request
+from urllib.request import Request, urlopen
+from urllib.error import URLError
+
+from flask import Flask, render_template, send_from_directory, request, jsonify
+
+# ML API (run with: cd backend && uvicorn api:app --reload)
+ML_API_BASE = os.environ.get("ML_API_BASE", "http://127.0.0.1:8000")
 
 frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
 frontend_static_dir = os.path.join(frontend_dir, "static")
@@ -40,6 +47,25 @@ def favicon_ico():
 @app.route("/health")
 def health():
     return "", 200
+
+
+@app.route("/api/predict_bulk", methods=["POST"])
+def api_predict_bulk():
+    """Proxy to ML API: bulk predict priority + category for task texts."""
+    try:
+        body = request.get_data()
+        req = Request(
+            f"{ML_API_BASE}/predict_bulk",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urlopen(req, timeout=30) as resp:
+            return jsonify(json.load(resp)), 200
+    except URLError as e:
+        return jsonify({"error": "ML service unavailable", "detail": str(e)}), 503
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

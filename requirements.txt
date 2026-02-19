@@ -1,0 +1,9 @@
+# ai-service (train, evaluate, notebooks)
+pandas
+matplotlib
+scikit-learn
+notebook
+
+# backend API
+fastapi
+uvicorn[standard]

@@ -34,23 +34,48 @@ bulkEl.addEventListener('input', () => {
 });
 
 // ── ANALYZE BULK ──────────────────────
-function analyzeBulk() {
-    const raw = bulkEl.value;
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE) || '';
 
+async function analyzeBulk() {
+    const raw = bulkEl.value;
     const lines = raw.split('\n')
         .map(l => l.replace(/^[-•*\d.]\s*/,'').trim())
         .filter(Boolean);
+    if (!lines.length) return;
 
-    lines.forEach(line => {
-        let p = inferPriority(line);
-        let c = inferCategory(line);
-        pushTask(line, p, c, '');
-    });
+    const btn = document.querySelector('.btn-analyze');
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Analyzing…';
+
+    try {
+        const url = API_BASE ? `${API_BASE}/api/predict_bulk` : '/api/predict_bulk';
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texts: lines }),
+        });
+        const data = await res.json();
+        if (res.ok && data.results && data.results.length) {
+            data.results.forEach(r => pushTask(r.text, r.priority, r.category, ''));
+        } else {
+            // ML API down or error — fallback to local rules
+            lines.forEach(line => {
+                pushTask(line, inferPriority(line), inferCategory(line), '');
+            });
+        }
+    } catch (_) {
+        lines.forEach(line => {
+            pushTask(line, inferPriority(line), inferCategory(line), '');
+        });
+    }
 
     bulkEl.value = '';
     document.getElementById('lineCount').textContent = '0';
     document.getElementById('charCount').textContent = '0';
     var dh = document.getElementById('detectHint'); if (dh) dh.style.opacity = '0';
+    btn.disabled = false;
+    btn.textContent = origText;
     render();
 }
 
