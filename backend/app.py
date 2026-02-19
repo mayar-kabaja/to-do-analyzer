@@ -5,8 +5,26 @@ from urllib.error import URLError
 
 from flask import Flask, render_template, send_from_directory, request, jsonify
 
-# ML API (run with: cd backend && uvicorn api:app --reload)
+# On Render (single service): set USE_INPROCESS_ML=true so Flask loads models and serves predict.
+# Locally: run uvicorn api:app (port 8000) and leave unset to proxy.
 ML_API_BASE = os.environ.get("ML_API_BASE", "http://127.0.0.1:8000")
+USE_INPROCESS_ML = os.environ.get("USE_INPROCESS_ML", "").lower() in ("1", "true", "yes")
+
+# Optional: load models in-process (for Render single-service deploy)
+_vectorizer = _priority_model = _category_model = None
+if USE_INPROCESS_ML:
+    try:
+        import pickle
+        _backend_dir = os.path.dirname(os.path.abspath(__file__))
+        _models_dir = os.path.join(_backend_dir, "models")
+        with open(os.path.join(_models_dir, "vectorizer.pkl"), "rb") as f:
+            _vectorizer = pickle.load(f)
+        with open(os.path.join(_models_dir, "priority_model.pkl"), "rb") as f:
+            _priority_model = pickle.load(f)
+        with open(os.path.join(_models_dir, "category_model.pkl"), "rb") as f:
+            _category_model = pickle.load(f)
+    except Exception:
+        _vectorizer = _priority_model = _category_model = None
 
 frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
 frontend_static_dir = os.path.join(frontend_dir, "static")
@@ -51,8 +69,25 @@ def health():
 
 @app.route("/api/predict_bulk", methods=["POST"])
 def api_predict_bulk():
-    """Proxy to ML API: bulk predict priority + category for task texts."""
+    """Predict priority + category (in-process or proxy to ML API)."""
     try:
+        data = request.get_json(force=True, silent=True) or {}
+        texts = data.get("texts") or []
+        if not texts:
+            return jsonify({"results": []}), 200
+
+        if _vectorizer is not None and _priority_model is not None and _category_model is not None:
+            # In-process (e.g. Render single service)
+            X_vec = _vectorizer.transform(texts)
+            priorities = _priority_model.predict(X_vec)
+            categories = _category_model.predict(X_vec)
+            results = [
+                {"text": t, "priority": p, "category": c}
+                for t, p, c in zip(texts, priorities, categories)
+            ]
+            return jsonify({"results": results}), 200
+
+        # Proxy to external ML API (local dev)
         body = request.get_data()
         req = Request(
             f"{ML_API_BASE}/predict_bulk",

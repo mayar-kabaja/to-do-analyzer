@@ -7,3 +7,8 @@ services:
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && gunicorn -b 0.0.0.0:$PORT app:app
     plan: free
+    envVars:
+      - key: USE_INPROCESS_ML
+        value: "true"
+      - key: PYTHON_VERSION
+        value: "3.11"

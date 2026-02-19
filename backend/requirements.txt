@@ -1,2 +1,5 @@
+flask
+gunicorn
+scikit-learn
 fastapi
 uvicorn[standard]
